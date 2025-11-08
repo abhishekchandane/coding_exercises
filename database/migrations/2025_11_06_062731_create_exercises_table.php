@@ -17,8 +17,9 @@ return new class extends Migration
         $table->id();
         $table->string('title');
         $table->text('description')->nullable();
-        $table->longText('solution');   // code
-        $table->longText('output')->nullable(); // result/output preview
+        $table->longText('solution')->nullable();
+        $table->longText('output')->nullable();
+        $table->string('category')->default('guzzle'); // to support future: api, payments, sms, etc
         $table->timestamps();
     });
     }

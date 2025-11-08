@@ -8,5 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Exercise extends Model
 {
     use HasFactory;
-     protected $fillable = ['title', 'description', 'solution', 'output'];
+  protected $fillable = [
+    'title',
+    'category_id',
+    'description',
+    'solution',
+    'output'
+];
+
+
+     public function category()
+        {
+            return $this->belongsTo(Category::class);
+        }
 }

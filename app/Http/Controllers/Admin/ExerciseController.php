@@ -4,61 +4,96 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exercise;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ExerciseController extends Controller
 {
-public function index(Request $request)
-{
-    $search = $request->input('search');
-
-    $exercises = Exercise::when($search, function($query, $search) {
-            return $query->where('title', 'LIKE', "%{$search}%")
-                         ->orWhere('description', 'LIKE', "%{$search}%");
-        })
-        ->orderBy('id', 'DESC')
-        ->paginate(10);
-
-    return view('admin.exercises.index', compact('exercises', 'search'));
-}
-
-
-    public function create()
+    /**
+     * Display all exercises.
+     */
+    public function index()
     {
-        return view('admin.exercises.create');
+        $exercises = Exercise::with('category')->orderBy('id', 'asc')->get();
+        return view('admin.exercises.index', compact('exercises'));
     }
 
+    /**
+     * Show form to create a new exercise.
+     */
+    public function create()
+    {
+        $categories = Category::all();
+        return view('admin.exercises.create', compact('categories'));
+    }
+
+    /**
+     * Store exercise.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'solution' => 'required',
+            'title'       => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'solution'    => 'nullable|string',
+            'output'      => 'nullable|string',
         ]);
 
-        Exercise::create($request->all());
+        Exercise::create($request->only(
+            'title',
+            'category_id',
+            'description',
+            'solution',
+            'output'
+        ));
 
-        return redirect()->route('admin.exercises.index')->with('success', 'Exercise Created Successfully');
+        return redirect()->route('admin.exercises.index')
+            ->with('success', 'Exercise Created Successfully!');
     }
 
-    public function edit($id)
+    /**
+     * Edit exercise.
+     */
+    public function edit(Exercise $exercise)
     {
-        $exercise = Exercise::findOrFail($id);
-        return view('admin.exercises.edit', compact('exercise'));
+        $categories = Category::all();
+        return view('admin.exercises.edit', compact('exercise', 'categories'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update exercise.
+     */
+    public function update(Request $request, Exercise $exercise)
     {
-        $exercise = Exercise::findOrFail($id);
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'solution'    => 'nullable|string',
+            'output'      => 'nullable|string',
+        ]);
 
-        $exercise->update($request->all());
+        $exercise->update($request->only(
+            'title',
+            'category_id',
+            'description',
+            'solution',
+            'output'
+        ));
 
-        return redirect()->route('admin.exercises.index')->with('success', 'Exercise Updated Successfully');
+        return redirect()->route('admin.exercises.index')
+            ->with('success', 'Exercise Updated Successfully!');
     }
 
-    public function destroy($id)
+    /**
+     * Delete exercise.
+     */
+    public function destroy(Exercise $exercise)
     {
-        Exercise::findOrFail($id)->delete();
-        
-        return redirect()->route('admin.exercises.index')->with('success', 'Exercise Deleted Successfully');
+        $exercise->delete();
+
+        return redirect()->route('admin.exercises.index')
+            ->with('success', 'Exercise Deleted Successfully!');
     }
 }

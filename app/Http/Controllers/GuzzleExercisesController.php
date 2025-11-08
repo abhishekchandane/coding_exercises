@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Exercise;
+use App\Models\Category;
 
 class GuzzleExercisesController extends Controller
 {
@@ -12,20 +13,24 @@ class GuzzleExercisesController extends Controller
      */
     public function index()
     {
-        $exercises = Exercise::orderBy('id')->get();
-        return view('exercises.guzzle-exercises', compact('exercises'));
+        $categories = Category::with('exercises')->get(); // For Sidebar
+        $exercises = Exercise::orderBy('id')->get(); // For Main List
+
+        return view('exercises.guzzle-exercises', compact('categories', 'exercises'));
     }
+
 
     /**
      * Display a single exercise by ID
      */
-    public function show($id)
+    public function show(Exercise $exercise)
     {
-        $exercise = Exercise::findOrFail($id);
+        $next = Exercise::where('id', '>', $exercise->id)->orderBy('id')->first();
+        $prev = Exercise::where('id', '<', $exercise->id)->orderBy('id', 'desc')->first();
 
-        return view('exercises.show', [
-            'exercise' => $exercise,
-            'id' => $id
-        ]);
+        $categories = Category::with('exercises')->get(); // Add this line
+
+        return view('exercises.show', compact('exercise', 'next', 'prev', 'categories'));
     }
+
 }

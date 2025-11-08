@@ -73,4 +73,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/dashboard-2',[DashboardController2::class ,'index'])->name('view-dashboard2');
 
 Route::get('/exercises', [GuzzleExercisesController::class, 'index'])->name('exercises.index');
-Route::get('/exercises/{id}', [GuzzleExercisesController::class, 'show'])->name('exercises.show');
+Route::get('/exercises/{exercise}', [GuzzleExercisesController::class, 'show'])->name('exercises.show');
+
